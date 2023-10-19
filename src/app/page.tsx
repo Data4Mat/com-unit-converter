@@ -1,30 +1,24 @@
 import Image from 'next/image'
 'use client'
 import React, { ChangeEvent, useState } from 'react'
-import {
-  UnitConverter,
-  Metric1DUnits,
-  Imperial1DUnits,
-  TemperatureUnits,
-} from "d4m-unit-converter"
 import { create } from 'domain'
-import {Converters} from "./main"
+import { Converters, TemperatureUnits, Metric1DUnits, Imperial1DUnits } from "./main"
 
 export default function Home() {
-  const unitconverter = new UnitConverter()
-  const metricToImperial = unitconverter.MetricToImperial
-  const imperialToMetric = unitconverter.ImperialToMetric
-  const temperature = unitconverter.TemperatureConverter
+  const converter = new Converters()
+  // const metricToImperial = unitconverter.MetricToImperial
+  // const imperialToMetric = unitconverter.ImperialToMetric
+  // const temperature = unitconverter.TemperatureConverter
   const [activeField, setActiveField] = useState(true)
   const [conversionHeader, setConversionHeader] = useState("Conversion")
   const [label1, setLabel1] = useState("Unit")
   const [label2, setLabel2] = useState("Unit")
+  const select1 = document.querySelector<HTMLSelectElement>("#unit1")
+  const select2 = document.querySelector<HTMLSelectElement>("#unit2")
 
   const loadTemperature = () => {
     const options1 = createOptions(TemperatureUnits)
     const options2 = createOptions(TemperatureUnits)
-    const select1 = document.querySelector<HTMLSelectElement>("#unit1")
-    const select2 = document.querySelector<HTMLSelectElement>("#unit2")
     select1!.innerHTML = options1
     select2!.innerHTML = options2
     setLabel1("Temperature")
@@ -35,8 +29,6 @@ export default function Home() {
   const loadLength = () => {
     const options1 = createOptions(Metric1DUnits)
     const options2 = createOptions(Imperial1DUnits)
-    const select1 = document.querySelector<HTMLSelectElement>("#unit1")
-    const select2 = document.querySelector<HTMLSelectElement>("#unit2")
     select1!.innerHTML = options1
     select2!.innerHTML = options2
     setLabel1("Metric")
@@ -111,7 +103,7 @@ export default function Home() {
                     </select>
                   </div>
                   <div className="flex flex-col ml-2">
-                  <label id="measure2Label" htmlFor="measure1">{label2}</label>
+                    <label id="measure2Label" htmlFor="measure1">{label2}</label>
                     <input title="Numeric Only" type="text"
                       name="measure" id="measure2" className="text-black mt-2 p-1"
                       pattern="\d*(\.\d+)?$" readOnly={activeField}
