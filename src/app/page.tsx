@@ -5,20 +5,20 @@ import { create } from 'domain'
 import { Converters, TemperatureUnits, Metric1DUnits, Imperial1DUnits } from "./main"
 
 export default function Home() {
-  const converter = new Converters()
   // const metricToImperial = unitconverter.MetricToImperial
   // const imperialToMetric = unitconverter.ImperialToMetric
   // const temperature = unitconverter.TemperatureConverter
-  const [activeField, setActiveField] = useState(true)
+  const [isReadOnlyField1, setIsReadOnlyField1] = useState(false)
+  const [isReadOnlyField2, setIsReadOnlyField2] = useState(!isReadOnlyField1)
   const [conversionHeader, setConversionHeader] = useState("Conversion")
   const [label1, setLabel1] = useState("Unit")
   const [label2, setLabel2] = useState("Unit")
-  const select1 = document.querySelector<HTMLSelectElement>("#unit1")
-  const select2 = document.querySelector<HTMLSelectElement>("#unit2")
 
   const loadTemperature = () => {
     const options1 = createOptions(TemperatureUnits)
     const options2 = createOptions(TemperatureUnits)
+    const select1 = document.querySelector<HTMLSelectElement>("#unit1")
+    const select2 = document.querySelector<HTMLSelectElement>("#unit2")
     select1!.innerHTML = options1
     select2!.innerHTML = options2
     setLabel1("Temperature")
@@ -29,11 +29,19 @@ export default function Home() {
   const loadLength = () => {
     const options1 = createOptions(Metric1DUnits)
     const options2 = createOptions(Imperial1DUnits)
-    select1!.innerHTML = options1
-    select2!.innerHTML = options2
-    setLabel1("Metric")
-    setLabel2("Imperial")
-    setConversionHeader("Metric & Imperial")
+    const select1 = document.querySelector<HTMLSelectElement>("#unit1")
+    const select2 = document.querySelector<HTMLSelectElement>("#unit2")
+    console.log("\n*** loadLength options1: " + options1)
+    try {
+      select1!.innerHTML = options1
+      select2!.innerHTML = options2
+      setLabel1("Metric")
+      setLabel2("Imperial")
+      console.log("\n*** loadLength select1: " + select1)
+      setConversionHeader("Metric & Imperial")
+    } catch (e) {
+      console.error("\n*** loadLength error: " + e)
+    }
   }
 
   const createOptions = (units: any) => {
@@ -45,11 +53,13 @@ export default function Home() {
     return options
   }
 
-  const setFocusField = (e: React.FocusEvent<HTMLInputElement>) => {
+  const toggleFocusField = (e: React.FocusEvent<HTMLInputElement>) => {
     if (e.target.id === "measure1") {
-      setActiveField(true)
+      setIsReadOnlyField1(false)
+      setIsReadOnlyField2(true)
     } else {
-      setActiveField(false)
+      setIsReadOnlyField1(true)
+      setIsReadOnlyField2(false)
     }
   }
 
@@ -60,6 +70,40 @@ export default function Home() {
     } else if (ev.target.value === 'length') {
       loadLength()
     }
+  }
+
+  const handleChange = (ev: ChangeEvent<HTMLElement>): void => {
+    const changeElement: HTMLElement = ev.target as HTMLElement
+    console.log("\n*** handleChange target: " + ev.target + " \nchangeElement: " + changeElement + " \nchangeElement.id: " + changeElement.id + " \nchangeElement.value: " + changeElement.value)
+
+    try {
+      let inData: number
+      let fromUnit: Metric1DUnits | Imperial1DUnits | TemperatureUnits
+      let toUnit: Metric1DUnits | Imperial1DUnits | TemperatureUnits
+      let  outField: HTMLInputElement
+
+      if (isReadOnlyField2) {
+        inData = parseFloat((document.querySelector<HTMLInputElement>("#measure1") as HTMLInputElement).value)
+        fromUnit = (document.querySelector<HTMLSelectElement>("#unit1") as HTMLSelectElement).value as Metric1DUnits | Imperial1DUnits | TemperatureUnits
+        toUnit = (document.querySelector<HTMLSelectElement>("#unit2") as HTMLSelectElement).value as Metric1DUnits | Imperial1DUnits | TemperatureUnits
+        outField = document.querySelector<HTMLInputElement>("#measure2") as HTMLInputElement
+      } else {
+        inData = parseFloat((document.querySelector<HTMLInputElement>("#measure2") as HTMLInputElement).value)
+        fromUnit = (document.querySelector<HTMLSelectElement>("#unit2") as HTMLSelectElement).value as Metric1DUnits | Imperial1DUnits | TemperatureUnits
+        toUnit = (document.querySelector<HTMLSelectElement>("#unit1") as HTMLSelectElement).value as Metric1DUnits | Imperial1DUnits | TemperatureUnits
+        outField = document.querySelector<HTMLInputElement>("#measure1") as HTMLInputElement
+      }
+
+      const outData: number = calculate (inData, fromUnit, toUnit)
+      outField.value = outData.toString()
+    } catch (e) {
+      console.error("\n*** handleChange error: " + e)
+    }
+  }
+
+  const calculate = (value: number, fromUnit: Metric1DUnits | Imperial1DUnits | TemperatureUnits, toUnit: Metric1DUnits | Imperial1DUnits | TemperatureUnits): number => {
+    const converter = new Converters()
+    return converter.calculate(value, fromUnit, toUnit)   
   }
 
   return (
@@ -97,18 +141,28 @@ export default function Home() {
                     <label id="measure1Label" htmlFor="measure1">{label1}</label>
                     <input title="Numeric Only" type="text"
                       name="measure" id="measure1" className="text-black mt-2 p-1"
-                      pattern="\d*(\.\d+)?$" readOnly={!activeField}
-                      onFocus={setFocusField} />
-                    <select title="Selector Unit 1" name="unit-selector" id="unit1" className="text-black mt-2 p-1" >
+                      pattern="\d*(\.\d+)?$" readOnly={isReadOnlyField1}
+                      onChange={handleChange}
+                      onFocus={toggleFocusField} />
+                    <select title="Selector Unit 1"
+                      name="unit-selector"
+                      id="unit1"
+                      onChange={handleChange}
+                      className="text-black mt-2 p-1" >
                     </select>
                   </div>
                   <div className="flex flex-col ml-2">
                     <label id="measure2Label" htmlFor="measure1">{label2}</label>
                     <input title="Numeric Only" type="text"
                       name="measure" id="measure2" className="text-black mt-2 p-1"
-                      pattern="\d*(\.\d+)?$" readOnly={activeField}
-                      onFocus={setFocusField} />
-                    <select title="Selector Unit 2" name="unit-selector" id="unit2" className="text-black mt-2 p-1">
+                      pattern="\d*(\.\d+)?$" readOnly={isReadOnlyField2}
+                      onChange={handleChange}
+                      onFocus={toggleFocusField} />
+                    <select title="Selector Unit 2"
+                      name="unit-selector"
+                      id="unit2"
+                      onChange={handleChange}
+                      className="text-black mt-2 p-1">
                     </select>
                   </div>
                 </div>
