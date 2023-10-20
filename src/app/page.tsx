@@ -11,6 +11,9 @@ export default function Home() {
   const [label1, setLabel1] = useState("Unit")
   const [label2, setLabel2] = useState("Unit")
 
+  /**
+   * Loads the temperature conversion options.
+   */
   const loadTemperature = () => {
     const options1 = createOptions(TemperatureUnits)
     const options2 = createOptions(TemperatureUnits)
@@ -23,6 +26,9 @@ export default function Home() {
     setConversionHeader("Temperature")
   }
 
+  /**
+   * Loads the length conversion options.
+   */
   const loadLength = () => {
     const options1 = createOptions(Metric1DUnits)
     const options2 = createOptions(Imperial1DUnits)
@@ -60,6 +66,11 @@ export default function Home() {
     }
   }
 
+  /**
+   * Handles the conversion type selection. Makes sure the right conversion options are loaded.
+   *
+   * @param {ChangeEvent<HTMLInputElement>} ev - The event object.
+   */
   const conversionHandler = (ev: ChangeEvent<HTMLInputElement>): void => {
     console.log("\n*** conversionHandler target.value: " + ev.target.value)
     if (ev.target.value === 'temperature') {
@@ -69,6 +80,11 @@ export default function Home() {
     }
   }
 
+  /**
+   * Handles the changes in input fields or select options.
+   *
+   * @param {ChangeEvent<HTMLElement>} ev - The event object.
+   */
   const handleChange = (ev: ChangeEvent<HTMLElement>): void => {
     const changeElement: HTMLElement = ev.target as HTMLElement
 
@@ -97,6 +113,15 @@ export default function Home() {
     }
   }
 
+  /**
+   * Hooks up to the the converter class interface in main.ts and returns the converted value.
+   *
+   * @param {string} value - String representation of the number to convert.
+   * @param {HTMLSelectElement} fromUnit - The unit to convert from.
+   * @param {HTMLSelectElement} toUnit - The unit to convert to.
+   * @returns {number} - The converted value.
+   * @throws {Error} - If the input is not a number.
+   */
   const calculate = (value: string, fromUnit: HTMLSelectElement, toUnit: HTMLSelectElement): number => {
     if (isNumberCheck(value)) {
       const converter = new Converters()
