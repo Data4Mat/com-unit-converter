@@ -5,9 +5,6 @@ import { create } from 'domain'
 import { Converters, TemperatureUnits, Metric1DUnits, Imperial1DUnits } from "./main"
 
 export default function Home() {
-  // const metricToImperial = unitconverter.MetricToImperial
-  // const imperialToMetric = unitconverter.ImperialToMetric
-  // const temperature = unitconverter.TemperatureConverter
   const [isReadOnlyField1, setIsReadOnlyField1] = useState(false)
   const [isReadOnlyField2, setIsReadOnlyField2] = useState(!isReadOnlyField1)
   const [conversionHeader, setConversionHeader] = useState("Conversion")
@@ -40,7 +37,7 @@ export default function Home() {
       console.log("\n*** loadLength select1: " + select1)
       setConversionHeader("Metric & Imperial")
     } catch (e) {
-      console.error("\n*** loadLength error: " + e)
+      console.error("\n*** Page.loadLength error: " + e)
     }
   }
 
@@ -74,36 +71,46 @@ export default function Home() {
 
   const handleChange = (ev: ChangeEvent<HTMLElement>): void => {
     const changeElement: HTMLElement = ev.target as HTMLElement
-    console.log("\n*** handleChange target: " + ev.target + " \nchangeElement: " + changeElement + " \nchangeElement.id: " + changeElement.id + " \nchangeElement.value: " + changeElement.value)
 
     try {
-      let inData: number
-      let fromUnit: Metric1DUnits | Imperial1DUnits | TemperatureUnits
-      let toUnit: Metric1DUnits | Imperial1DUnits | TemperatureUnits
-      let  outField: HTMLInputElement
+      let inData: string
+      let fromUnit: HTMLSelectElement
+      let toUnit: HTMLSelectElement
+      let outField: HTMLInputElement
 
       if (isReadOnlyField2) {
-        inData = parseFloat((document.querySelector<HTMLInputElement>("#measure1") as HTMLInputElement).value)
-        fromUnit = (document.querySelector<HTMLSelectElement>("#unit1") as HTMLSelectElement).value as Metric1DUnits | Imperial1DUnits | TemperatureUnits
-        toUnit = (document.querySelector<HTMLSelectElement>("#unit2") as HTMLSelectElement).value as Metric1DUnits | Imperial1DUnits | TemperatureUnits
+        inData = (document.querySelector<HTMLInputElement>("#measure1") as HTMLInputElement).value
+        fromUnit = document.querySelector<HTMLSelectElement>("#unit1") as HTMLSelectElement
+        toUnit = document.querySelector<HTMLSelectElement>("#unit2") as HTMLSelectElement
         outField = document.querySelector<HTMLInputElement>("#measure2") as HTMLInputElement
       } else {
-        inData = parseFloat((document.querySelector<HTMLInputElement>("#measure2") as HTMLInputElement).value)
-        fromUnit = (document.querySelector<HTMLSelectElement>("#unit2") as HTMLSelectElement).value as Metric1DUnits | Imperial1DUnits | TemperatureUnits
-        toUnit = (document.querySelector<HTMLSelectElement>("#unit1") as HTMLSelectElement).value as Metric1DUnits | Imperial1DUnits | TemperatureUnits
+        inData = (document.querySelector<HTMLInputElement>("#measure2") as HTMLInputElement).value
+        fromUnit = document.querySelector<HTMLSelectElement>("#unit2") as HTMLSelectElement
+        toUnit = document.querySelector<HTMLSelectElement>("#unit1") as HTMLSelectElement
         outField = document.querySelector<HTMLInputElement>("#measure1") as HTMLInputElement
       }
 
-      const outData: number = calculate (inData, fromUnit, toUnit)
+      const outData: number = calculate(inData, fromUnit, toUnit)
       outField.value = outData.toString()
     } catch (e) {
-      console.error("\n*** handleChange error: " + e)
+      console.error("\n*** Page.handleChange error: " + e)
     }
   }
 
-  const calculate = (value: number, fromUnit: Metric1DUnits | Imperial1DUnits | TemperatureUnits, toUnit: Metric1DUnits | Imperial1DUnits | TemperatureUnits): number => {
-    const converter = new Converters()
-    return converter.calculate(value, fromUnit, toUnit)   
+  const calculate = (value: string, fromUnit: HTMLSelectElement, toUnit: HTMLSelectElement): number => {
+    if (isNumberCheck(value)) {
+      const converter = new Converters()
+      const numb = parseFloat(value)
+      return converter.calculate(numb, fromUnit, toUnit)
+    } else {
+      // Let user know that the input is not a number
+      throw new Error("Page.calculate: Invalid number")
+    }
+  }
+
+  const isNumberCheck = (value: string): boolean => {
+    const regex = new RegExp(/^-?\d*(\.\d+)?$/)
+    return regex.test(value)
   }
 
   return (
@@ -117,13 +124,6 @@ export default function Home() {
                 <fieldset className='flex flex-col items-center m-2 border p-3'>
                   <legend className='text-lg'>Conversion:</legend>
                   <div className="flex flex-col">
-                    <label htmlFor="temperature">
-                      <input type="radio"
-                        name="conversion"
-                        id="temperature"
-                        value='temperature'
-                        className="text-black mr-2 p-1"
-                        onChange={conversionHandler} />Temperature</label>
                     <label htmlFor="length">
                       <input type="radio"
                         name="conversion"
@@ -131,6 +131,13 @@ export default function Home() {
                         className="text-black mr-2 p-1"
                         value='length'
                         onChange={conversionHandler} />Length</label>
+                    <label htmlFor="temperature">
+                      <input type="radio"
+                        name="conversion"
+                        id="temperature"
+                        value='temperature'
+                        className="text-black mr-2 p-1"
+                        onChange={conversionHandler} />Temperature</label>
                   </div>
                 </fieldset>
               </form>
@@ -141,7 +148,7 @@ export default function Home() {
                     <label id="measure1Label" htmlFor="measure1">{label1}</label>
                     <input title="Numeric Only" type="text"
                       name="measure" id="measure1" className="text-black mt-2 p-1"
-                      pattern="\d*(\.\d+)?$" readOnly={isReadOnlyField1}
+                      pattern="-?0*\d+(\.\d+)?" readOnly={isReadOnlyField1}
                       onChange={handleChange}
                       onFocus={toggleFocusField} />
                     <select title="Selector Unit 1"
@@ -155,7 +162,7 @@ export default function Home() {
                     <label id="measure2Label" htmlFor="measure1">{label2}</label>
                     <input title="Numeric Only" type="text"
                       name="measure" id="measure2" className="text-black mt-2 p-1"
-                      pattern="\d*(\.\d+)?$" readOnly={isReadOnlyField2}
+                      pattern="-?0*\d+(\.\d+)?" readOnly={isReadOnlyField2}
                       onChange={handleChange}
                       onFocus={toggleFocusField} />
                     <select title="Selector Unit 2"
