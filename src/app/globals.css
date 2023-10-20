@@ -16,6 +16,9 @@
   }
 }
 
+html {
+  font-size: 14px;
+}
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
@@ -24,4 +27,29 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+
+input:invalid {
+  background-color: lightpink;
+}
+
+input:read-only {
+  background-color: rgb(185, 185, 185);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  margin: 0;
+}
+h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+h3 {
+  font-size: 1.6rem;
+  margin-bottom: 0.3rem;
 }
