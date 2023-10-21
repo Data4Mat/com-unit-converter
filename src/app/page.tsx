@@ -139,10 +139,23 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col items-center justify-between pl-24 pr-24 pt-2">
       <div className="relative flex place-items-center">
         <div className="flex flex-col items-center justify-top z-[1]">
           <h1 className="mb-4">Unit Converter App</h1>
+          <section id="info" className="flex flex-col items-center justify-center">
+            <h3>Usage</h3>
+            <p>
+            This app converts between metric and imperial units, as well as the three main temperature scales. <br />A new calculation occurs whenever any value or unit changes.
+            </p>
+            <div className="pl-4">
+              <ol type="1" className="mt-7">
+                <li>First, choose either &quot;Length&quot; or &quot;Temperature&quot; using the radio buttons.</li>
+                <li>Then, use the dropdown menus to select the unit you&lsquo;re converting from and the one you&lsquo;re converting to.</li>
+                <li>Input a numeric value in one field to convert from; the other field will display the result. <strong>Note:</strong> Either field can be active.</li>
+              </ol>
+            </div>
+          </section>
           <div className="mt-4 p-4 border-2 rounded-md">
             <div className="flex flex-col items-center">
               <form className="flex flex-col items-center">

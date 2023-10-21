@@ -53,3 +53,12 @@ h3 {
   font-size: 1.6rem;
   margin-bottom: 0.3rem;
 }
+
+#info {
+  max-width: clamp(200px, 55%, 600px);
+  padding: 0.5rem 1rem;
+}
+
+ol {
+  list-style-type: outside;
+}
