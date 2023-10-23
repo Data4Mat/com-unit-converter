@@ -34,7 +34,7 @@ export default function Home() {
     const options2 = createOptions(Imperial1DUnits)
     const select1 = document.querySelector<HTMLSelectElement>("#unit1")
     const select2 = document.querySelector<HTMLSelectElement>("#unit2")
-    console.log("\n*** loadLength options1: " + options1)
+    // console.log("\n*** loadLength options1: " + options1)
     try {
       select1!.innerHTML = options1
       select2!.innerHTML = options2
